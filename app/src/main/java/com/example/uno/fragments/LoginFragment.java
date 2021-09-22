@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,8 +34,6 @@ public class LoginFragment extends Fragment {
 
     String email, password;
 
-    FirebaseUser currentUser;
-
     ILogin am;
 
     Firestore db;
@@ -52,7 +51,7 @@ public class LoginFragment extends Fragment {
     }
 
     public void login() {
-        db.firestore.collection(Firestore.DB_PROFILE).document(currentUser.getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        db.firestore.collection(Firestore.DB_PROFILE).document(db.getCurrentUser().getUid()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -110,7 +109,6 @@ public class LoginFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()) {
-                                        currentUser = db.getCurrentUser();
                                         login();
                                     } else{
                                         am.alert(task.getException().getMessage());

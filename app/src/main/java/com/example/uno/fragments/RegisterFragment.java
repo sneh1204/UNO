@@ -166,8 +166,8 @@ public class RegisterFragment extends Fragment {
                                             fileName = UUID.randomUUID().toString() + ".jpg";
 
                                             storeUserInfoToFirestore(firstName, lastName, city, gender, email, fileName);
-                                            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-                                            storageReference.child(user.getUid()).child(fileName).putFile(imageUri);
+
+                                            db.storage.child(user.getUid()).child(fileName).putFile(imageUri);
                                         } else {
                                             storeUserInfoToFirestore(firstName, lastName, city, gender, email, null);
                                         }

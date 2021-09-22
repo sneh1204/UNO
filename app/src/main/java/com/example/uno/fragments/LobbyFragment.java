@@ -42,7 +42,7 @@ public class LobbyFragment extends Fragment {
         return view;
     }
 
-    interface ILobby{
+    public interface ILobby{
         void alert(String msg);
         Firestore getDb();
     }
