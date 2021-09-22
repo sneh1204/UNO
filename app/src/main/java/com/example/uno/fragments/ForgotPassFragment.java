@@ -18,7 +18,7 @@ import com.example.uno.databinding.FragmentForgotPassBinding;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
-public class ForgotPasswordFragment extends Fragment {
+public class ForgotPassFragment extends Fragment {
 
     FragmentForgotPassBinding binding;
 

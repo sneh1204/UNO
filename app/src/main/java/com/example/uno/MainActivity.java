@@ -5,13 +5,13 @@ import android.util.Log;
 
 import androidx.core.splashscreen.SplashScreen;
 
-import com.example.uno.fragments.ForgotPasswordFragment;
+import com.example.uno.fragments.ForgotPassFragment;
 import com.example.uno.fragments.RegisterFragment;
 import com.example.uno.database.Firestore;
 import com.example.uno.fragments.LoginFragment;
 import com.example.uno.models.User;
 
-public class MainActivity extends CommonActivity implements LoginFragment.ILogin, RegisterFragment.IRegister, ForgotPasswordFragment.IForgot {
+public class MainActivity extends CommonActivity implements LoginFragment.ILogin, RegisterFragment.IRegister, ForgotPassFragment.IForgot {
 
     private Firestore db;
 
