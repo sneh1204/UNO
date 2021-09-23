@@ -143,7 +143,7 @@ public class LobbyFragment extends Fragment {
             }
         });
 
-        binding.floatingActionButton2.setOnClickListener(new View.OnClickListener() {
+        binding.floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ArrayList<String> requester = new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref()));
