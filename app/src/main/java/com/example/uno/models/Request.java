@@ -11,7 +11,15 @@ public class Request {
 
     ArrayList<String> requester;
 
+    public Request() {
+    }
+
     Date created_at;
+
+    public Request(ArrayList<String> requester, Date created_at) {
+        this.requester = requester;
+        this.created_at = created_at;
+    }
 
     public String getRequesterId() {
         return requester.get(Utils.ID);

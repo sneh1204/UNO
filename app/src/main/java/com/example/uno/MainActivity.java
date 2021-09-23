@@ -1,18 +1,18 @@
 package com.example.uno;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.core.splashscreen.SplashScreen;
 
+import com.example.uno.adapters.RequestsAdapter;
+import com.example.uno.database.Firestore;
 import com.example.uno.fragments.ForgotPassFragment;
 import com.example.uno.fragments.LobbyFragment;
-import com.example.uno.fragments.RegisterFragment;
-import com.example.uno.database.Firestore;
 import com.example.uno.fragments.LoginFragment;
+import com.example.uno.fragments.RegisterFragment;
 import com.example.uno.models.User;
 
-public class MainActivity extends CommonActivity implements LoginFragment.ILogin, RegisterFragment.IRegister, ForgotPassFragment.IForgot, LobbyFragment.ILobby {
+public class MainActivity extends CommonActivity implements RequestsAdapter.IReqAdapter, LoginFragment.ILogin, RegisterFragment.IRegister, ForgotPassFragment.IForgot, LobbyFragment.ILobby {
 
     private Firestore db;
 

@@ -4,7 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.CountDownTimer;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -40,6 +40,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 
 
@@ -50,15 +51,16 @@ public class LobbyFragment extends Fragment {
     ILobby am;
 
     private static final int SECS = 30;
+    private final int interval = 1000 * SECS;
 
     Firestore db;
-    private final int interval = 1000 * SECS;
+
     NavController navController;
+    AlertDialog.Builder builder;
     AlertDialog dialog;
     User user;
-    Runnable runnable;
-    private int count = SECS;
-    private Handler handler = new Handler();
+    Request req;
+    private CountDownTimer timer;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -69,6 +71,17 @@ public class LobbyFragment extends Fragment {
             throw new RuntimeException(context.toString());
         }
         db = am.getDb();
+    }
+
+    public void rmRequest(String rid) {
+        if (timer != null) timer.cancel();
+        db.firestore.collection(Firestore.DB_REQUESTS).document(rid).delete();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        rmRequest(req.getId());
     }
 
     @Override
@@ -123,7 +136,8 @@ public class LobbyFragment extends Fragment {
                 for (QueryDocumentSnapshot doc : value) {
                     Request request = doc.toObject(Request.class);
                     request.setId(doc.getId());
-                    requests.add(request);
+                    if (!request.getRequesterId().equals(user.getId()))
+                        requests.add(request);
                 }
                 binding.requestsview.setAdapter(new RequestsAdapter(requests));
             }
@@ -132,41 +146,50 @@ public class LobbyFragment extends Fragment {
         binding.floatingActionButton2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                ArrayList<String> requester = new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref()));
                 HashMap<String, Object> request = new HashMap<>();
                 request.put("created_at", FieldValue.serverTimestamp());
-                request.put("requester", new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref())));
+                request.put("requester", requester);
+
+                req = new Request(requester, new Date());
+
+                builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Game Request");
+                builder.setMessage("Waiting for another player to join...");
+                builder.setCancelable(false);
+
 
                 db.firestore.collection(Firestore.DB_REQUESTS).add(request).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentReference> task) {
                         if (task.isSuccessful()) {
 
-                            Toast.makeText(getContext(), "Requested a game! Waiting...", Toast.LENGTH_SHORT).show();
+                            req.setId(task.getResult().getId());
 
-                            runnable = () -> {
-                                --count;
-                                if (count <= 0) {
-                                    count = SECS;
-                                    Toast.makeText(getContext(), "No one joined the request! Removed.", Toast.LENGTH_SHORT).show();
-                                    db.firestore.collection(Firestore.DB_REQUESTS).document(task.getResult().getId()).delete();
-                                } else {
-                                    if (dialog == null) {
-                                        dialog = new AlertDialog.Builder(getActivity())
-                                                .setTitle("Game Request")
-                                                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                                    @Override
-                                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                                        Toast.makeText(getContext(), "Request removed.", Toast.LENGTH_SHORT).show();
-                                                        db.firestore.collection(Firestore.DB_REQUESTS).document(task.getResult().getId()).delete();
-                                                    }
-                                                })
-                                                .show();
-                                    }
-                                    dialog.setMessage("Waiting for another player to join... " + count);
+                            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    rmRequest(req.getId());
+                                    dialog.cancel();
                                 }
-                            };
-                            handler.postAtTime(runnable, System.currentTimeMillis() + interval);
-                            handler.postDelayed(runnable, 1000);
+                            });
+
+                            dialog = builder.create();
+                            dialog.show();
+
+                            timer = new CountDownTimer(interval, 1000) {
+
+                                @Override
+                                public void onTick(long l) {
+                                    dialog.setMessage("Waiting for another player to join... " + (l / 1000));
+                                }
+
+                                @Override
+                                public void onFinish() {
+                                    dialog.setMessage("No one joined the request! Removed.");
+                                    rmRequest(req.getId());
+                                }
+                            }.start();
 
                         } else {
                             task.getException().printStackTrace();
