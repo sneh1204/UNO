@@ -42,6 +42,11 @@ public class LoginFragment extends Fragment {
             throw new RuntimeException(context.toString());
         }
         db = am.getDb();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         if (db.getCurrentUser() != null) login();
     }
 

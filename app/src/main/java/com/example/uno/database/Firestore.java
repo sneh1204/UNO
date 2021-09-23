@@ -1,7 +1,5 @@
 package com.example.uno.database;
 
-import android.util.Log;
-
 import com.example.uno.MainActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -12,6 +10,7 @@ import com.google.firebase.storage.StorageReference;
 public class Firestore {
 
     public static final String DB_PROFILE = "profiles";
+    public static final String DB_REQUESTS = "requests";
 
     MainActivity activity;
 
@@ -28,7 +27,12 @@ public class Firestore {
         storage = FirebaseStorage.getInstance().getReference();
     }
 
-    public FirebaseUser getCurrentUser(){
+    public void logout() {
+        mAuth.signOut();
+        activity.setUser(null);
+    }
+
+    public FirebaseUser getCurrentUser() {
         return mAuth.getCurrentUser();
     }
 
