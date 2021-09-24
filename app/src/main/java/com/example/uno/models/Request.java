@@ -1,43 +1,36 @@
 package com.example.uno.models;
 
-import com.example.uno.helpers.Utils;
-
-import java.util.ArrayList;
 import java.util.Date;
 
 public class Request {
 
     String id;
 
-    ArrayList<String> requester;
-
-    public Request() {
-    }
-
+    User requester;
     Date created_at;
+    boolean accepted = false;
 
-    public Request(ArrayList<String> requester, Date created_at) {
+    public Request(User requester, Date created_at) {
         this.requester = requester;
         this.created_at = created_at;
     }
 
-    public String getRequesterId() {
-        return requester.get(Utils.ID);
+    public boolean isAccepted() {
+        return accepted;
     }
 
-    public String getRequesterRef() {
-        return requester.get(Utils.PHOTO_REF);
+    public Request() {
     }
 
-    public String getRequesterName() {
-        return requester.get(Utils.NAME);
+    public void setAccepted(boolean accepted) {
+        this.accepted = accepted;
     }
 
-    public ArrayList<String> getRequester() {
+    public User getRequester() {
         return requester;
     }
 
-    public void setRequester(ArrayList<String> requester) {
+    public void setRequester(User requester) {
         this.requester = requester;
     }
 

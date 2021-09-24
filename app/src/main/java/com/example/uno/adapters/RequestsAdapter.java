@@ -1,5 +1,6 @@
 package com.example.uno.adapters;
 
+import android.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,17 +41,19 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.UViewH
     public void onBindViewHolder(@NonNull UViewHolder holder, int position) {
         Request request = requests.get(position);
 
-        binding.textView5.setText(request.getRequesterName());
+        User requester = request.getRequester();
+
+        binding.textView5.setText(requester.getDisplayName());
 
         user = am.getUser();
 
-        Utils.setImage(binding.getRoot(), binding.imageView, request.getRequesterId(), request.getRequesterRef());
+        Utils.setImage(binding.getRoot(), binding.imageView, requester.getId(), requester.getPhotoref());
 
         holder.binding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (request.getRequesterId().equals(user.getId())) return;
-
+                if (requester.getId().equals(user.getId())) return;
+                AlertDialog.Builder builder = new AlertDialog.Builder(holder.binding.getRoot().getContext());
             }
         });
     }

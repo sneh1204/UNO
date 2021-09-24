@@ -31,15 +31,16 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -62,6 +63,8 @@ public class LobbyFragment extends Fragment {
     Request req;
     private CountDownTimer timer;
 
+    ListenerRegistration listener;
+
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
@@ -75,6 +78,7 @@ public class LobbyFragment extends Fragment {
 
     public void rmRequest(String rid) {
         if (timer != null) timer.cancel();
+        if (listener != null) listener.remove();
         db.firestore.collection(Firestore.DB_REQUESTS).document(rid).delete();
     }
 
@@ -136,7 +140,7 @@ public class LobbyFragment extends Fragment {
                 for (QueryDocumentSnapshot doc : value) {
                     Request request = doc.toObject(Request.class);
                     request.setId(doc.getId());
-                    if (!request.getRequesterId().equals(user.getId()))
+                    if (!request.getRequester().getId().equals(user.getId()))
                         requests.add(request);
                 }
                 binding.requestsview.setAdapter(new RequestsAdapter(requests));
@@ -146,12 +150,12 @@ public class LobbyFragment extends Fragment {
         binding.floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ArrayList<String> requester = new ArrayList<>(Arrays.asList(user.getId(), user.getDisplayName(), user.getPhotoref()));
                 HashMap<String, Object> request = new HashMap<>();
                 request.put("created_at", FieldValue.serverTimestamp());
-                request.put("requester", requester);
+                request.put("requester", user);
+                request.put("accepted", false);
 
-                req = new Request(requester, new Date());
+                req = new Request(user, new Date());
 
                 builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("Game Request");
@@ -182,6 +186,7 @@ public class LobbyFragment extends Fragment {
                                 @Override
                                 public void onTick(long l) {
                                     dialog.setMessage("Waiting for another player to join... " + (l / 1000));
+                                    checkIfAccepted(req.getId());
                                 }
 
                                 @Override
@@ -201,6 +206,25 @@ public class LobbyFragment extends Fragment {
 
 
         return view;
+    }
+
+    public void checkIfAccepted(String rid) {
+        db.firestore.collection(Firestore.DB_REQUESTS).document(rid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (value == null) {
+                    return;
+                }
+                if (value.getBoolean("accepted")) {
+                    rmRequest(rid);
+                    // accepted
+                }
+            }
+        });
     }
 
     @Override
