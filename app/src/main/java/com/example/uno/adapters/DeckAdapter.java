@@ -6,8 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.uno.MainActivity;
 import com.example.uno.database.Firestore;
 import com.example.uno.databinding.CardLayoutBinding;
 import com.example.uno.helpers.Utils;
@@ -28,6 +30,8 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.UViewHolder> {
 
     User user;
 
+    ViewGroup parent;
+
     public DeckAdapter(ArrayList<String> deck) {
         this.deck = deck;
     }
@@ -37,6 +41,7 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.UViewHolder> {
     public UViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         binding = CardLayoutBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         am = (IDeckAdapter) parent.getContext();
+        this.parent = parent;
         return new UViewHolder(binding);
     }
 
@@ -50,6 +55,8 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.UViewHolder> {
 
         binding.textView4.setText(Utils.getCardDisplay(card));
         binding.textView4.setTextColor(Color.parseColor(Utils.getCardColor(card)));
+        if(Utils.isSkip(card))  binding.textView4.setTextSize(30);
+        binding.imageView6.setImageDrawable(ContextCompat.getDrawable((MainActivity) parent.getContext(), Utils.getCardDrawable(card)));
 
         binding.getRoot().setOnClickListener(new View.OnClickListener() {
             @Override

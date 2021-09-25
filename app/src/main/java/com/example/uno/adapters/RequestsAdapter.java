@@ -112,7 +112,7 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.UViewH
 
                                         user.setGame(game);
                                         Navigation.findNavController((MainActivity) parent.getContext(), R.id.fragmentContainerView2).navigate(R.id.action_lobbyFragment_to_gameRoomFragment);
-                                        am.alert("Game started!");
+                                        am.alert("Game started with " + request.getRequester().getDisplayName() + "!");
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override

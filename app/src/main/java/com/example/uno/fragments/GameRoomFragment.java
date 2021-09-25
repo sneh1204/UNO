@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.example.uno.MainActivity;
 import com.example.uno.R;
 import com.example.uno.adapters.DeckAdapter;
 import com.example.uno.database.Firestore;
@@ -32,6 +33,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.HashMap;
 
@@ -52,6 +54,8 @@ public class GameRoomFragment extends Fragment {
     DocumentReference dbref;
 
     ColorStateList oldcolor;
+
+    ListenerRegistration listener;
 
     public interface IGameRoom{
 
@@ -103,7 +107,7 @@ public class GameRoomFragment extends Fragment {
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(binding.deckView.getContext(),
                 llm.getOrientation());
-        dividerItemDecoration.setDrawable(ContextCompat.getDrawable(getContext(), R.drawable.space_rect));
+        dividerItemDecoration.setDrawable(getResources().getDrawable(R.drawable.space_rect));
         binding.deckView.addItemDecoration(dividerItemDecoration);
 
         oldcolor = binding.player1.getTextColors();
@@ -114,7 +118,7 @@ public class GameRoomFragment extends Fragment {
         Utils.setImage(view, binding.imageView4, game.getPlayer1().getId(), game.getPlayer2().getPhotoref());
         Utils.setImage(view, binding.imageView5, game.getPlayer2().getId(), game.getPlayer2().getPhotoref());
 
-        dbref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        listener = dbref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -126,6 +130,10 @@ public class GameRoomFragment extends Fragment {
                 }
                 game = value.toObject(Game.class);
                 game.setId(value.getId());
+
+                if(!game.isActive()){
+                    listener.remove();
+                }
 
                 if(game.isPlayer1Turn()){
                     if(game.isPlayer1(user)) binding.textView8.setText("Your Turn");
@@ -145,6 +153,8 @@ public class GameRoomFragment extends Fragment {
 
                 binding.include.textView4.setTextColor(Color.parseColor(Utils.getCardColor(game.getTopCard())));
                 binding.include.textView4.setText(Utils.getCardDisplay(game.getTopCard()));
+                if(Utils.isSkip(game.getTopCard()))  binding.include.textView4.setTextSize(30);
+                binding.include.imageView6.setImageDrawable(ContextCompat.getDrawable(getActivity(), Utils.getCardDrawable(game.getTopCard())));
 
                 if(game.isPlayer1(user)){
                     binding.deckView.setAdapter(new DeckAdapter(game.getPlayer1hand()));

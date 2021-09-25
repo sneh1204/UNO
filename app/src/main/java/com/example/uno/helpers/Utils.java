@@ -31,6 +31,25 @@ public class Utils {
         return time.format(date);
     }
 
+    /**
+     *
+     * @param card
+     * @return
+     */
+    public static int getCardDrawable(String card){
+        if(isDraw4(card))   return R.drawable.uno_black;
+        String colorCode = card.substring(0, 1);
+        if(colorCode.equals("Y"))   return R.drawable.uno_yellow;
+        else if(colorCode.equals("R"))   return R.drawable.uno_red;
+        else if(colorCode.equals("G"))   return R.drawable.uno_green;
+        else   return R.drawable.uno_blue;
+    }
+
+    /**
+     *
+     * @param card
+     * @return
+     */
     public static String getCardColor(String card){
         if(isDraw4(card))   return COLOR_BLACK;
         String colorCode = card.substring(0, 1);
@@ -40,20 +59,42 @@ public class Utils {
         else   return COLOR_BLUE;
     }
 
+    /**
+     *
+     * @param card
+     * @return
+     */
     public static String getCardDisplay(String card){
         if(isDraw4(card)) return card;
         else if(isSkip(card))  return "Skip";
         else return card.substring(1);
     }
 
+    /**
+     *
+     * @param card
+     * @return
+     */
     public static boolean isDraw4(String card){
         return card.startsWith("+");
     }
 
+    /**
+     *
+     * @param card
+     * @return
+     */
     public static boolean isSkip(String card){
         return card.endsWith("S");
     }
 
+    /**
+     *
+     * @param view
+     * @param image
+     * @param uid
+     * @param photoRef
+     */
     public static void setImage(View view, ImageView image, String uid, String photoRef) {
         if (photoRef != null) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(uid).child(photoRef);

@@ -124,7 +124,7 @@ public class LobbyFragment extends Fragment {
                 llm.getOrientation());
         binding.requestsview.addItemDecoration(dividerItemDecoration);
 
-        binding.textView9.setText("Welcome " + user.getFirstname());
+        binding.textView9.setText("Welcome, " + user.getFirstname());
 
         am.toggleDialog(true);
 
