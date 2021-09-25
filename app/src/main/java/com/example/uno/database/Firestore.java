@@ -11,6 +11,7 @@ public class Firestore {
 
     public static final String DB_PROFILE = "profiles";
     public static final String DB_REQUESTS = "requests";
+    public static final String DB_GAME = "game";
 
     MainActivity activity;
 

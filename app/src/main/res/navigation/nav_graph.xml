@@ -27,6 +27,9 @@
         <action
             android:id="@+id/action_lobbyFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
+        <action
+            android:id="@+id/action_lobbyFragment_to_gameRoomFragment"
+            app:destination="@id/gameRoomFragment" />
     </fragment>
     <fragment
         android:id="@+id/registerFragment"
@@ -42,4 +45,9 @@
         android:name="com.example.uno.fragments.ForgotPassFragment"
         android:label="fragment_forgot_pass"
         tools:layout="@layout/fragment_forgot_pass" />
+    <fragment
+        android:id="@+id/gameRoomFragment"
+        android:name="com.example.uno.fragments.GameRoomFragment"
+        android:label="fragment_game_room"
+        tools:layout="@layout/fragment_game_room" />
 </navigation>

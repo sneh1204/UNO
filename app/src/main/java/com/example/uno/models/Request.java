@@ -8,11 +8,21 @@ public class Request {
 
     User requester;
     Date created_at;
+
+    String game_id = null;
     boolean accepted = false;
 
     public Request(User requester, Date created_at) {
         this.requester = requester;
         this.created_at = created_at;
+    }
+
+    public String getGame_id() {
+        return game_id;
+    }
+
+    public void setGame_id(String game_id) {
+        this.game_id = game_id;
     }
 
     public boolean isAccepted() {

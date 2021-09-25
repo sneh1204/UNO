@@ -6,6 +6,8 @@ public class User implements Serializable {
 
     String firstname, lastname, photoref, city, email, gender, id;
 
+    Game game = null;
+
     public User(String firstname, String lastname, String photoref, String city, String email, String gender, String id) {
         this.firstname = firstname;
         this.lastname = lastname;
@@ -14,6 +16,14 @@ public class User implements Serializable {
         this.email = email;
         this.gender = gender;
         this.id = id;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
     }
 
     public User() {

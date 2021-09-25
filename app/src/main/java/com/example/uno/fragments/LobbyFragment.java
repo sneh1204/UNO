@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,6 +26,7 @@ import com.example.uno.R;
 import com.example.uno.adapters.RequestsAdapter;
 import com.example.uno.database.Firestore;
 import com.example.uno.databinding.FragmentLobbyBinding;
+import com.example.uno.models.Game;
 import com.example.uno.models.Request;
 import com.example.uno.models.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -85,7 +87,8 @@ public class LobbyFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        rmRequest(req.getId());
+        if(req != null)
+            rmRequest(req.getId());
     }
 
     @Override
@@ -120,6 +123,8 @@ public class LobbyFragment extends Fragment {
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(binding.requestsview.getContext(),
                 llm.getOrientation());
         binding.requestsview.addItemDecoration(dividerItemDecoration);
+
+        binding.textView9.setText("Welcome " + user.getFirstname());
 
         am.toggleDialog(true);
 
@@ -181,12 +186,13 @@ public class LobbyFragment extends Fragment {
                             dialog = builder.create();
                             dialog.show();
 
+                            checkIfAccepted(req.getId());
+
                             timer = new CountDownTimer(interval, 1000) {
 
                                 @Override
                                 public void onTick(long l) {
                                     dialog.setMessage("Waiting for another player to join... " + (l / 1000));
-                                    checkIfAccepted(req.getId());
                                 }
 
                                 @Override
@@ -209,7 +215,7 @@ public class LobbyFragment extends Fragment {
     }
 
     public void checkIfAccepted(String rid) {
-        db.firestore.collection(Firestore.DB_REQUESTS).document(rid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
+        listener = db.firestore.collection(Firestore.DB_REQUESTS).document(rid).addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
                 if (error != null) {
@@ -219,9 +225,28 @@ public class LobbyFragment extends Fragment {
                 if (value == null) {
                     return;
                 }
-                if (value.getBoolean("accepted")) {
-                    rmRequest(rid);
-                    // accepted
+                req = value.toObject(Request.class);
+                req.setId(value.getId());
+                if (req.isAccepted() && req.getGame_id() != null) {
+                    db.firestore.collection(Firestore.DB_GAME).document(req.getGame_id()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if(!task.isSuccessful())    task.getException().printStackTrace();
+
+                            dialog.cancel();
+
+                            Game game = task.getResult().toObject(Game.class);
+                            game.setId(task.getResult().getId());
+                            user.setGame(game);
+                            am.alert(game.getPlayer2().getDisplayName() + " joined the game!");
+
+                            listener.remove();
+                            rmRequest(rid);
+
+                            navController.navigate(R.id.action_lobbyFragment_to_gameRoomFragment);
+
+                        }
+                    });
                 }
             }
         });
