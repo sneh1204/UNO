@@ -32,13 +32,25 @@ public class Utils {
     }
 
     /**
-     *
+     * @param card
+     * @param playing
+     * @return
+     */
+    public static boolean canPlay(String card, String playing){
+        if(playing.equals(card))  return true;
+        else if(isDraw4(card))   return true;
+        else if(getCardColor(card).equals(getCardSymbol(playing)))   return true;
+        else if(getCardNumber(card).equals(getCardNumber(playing)))  return true;
+        return false;
+    }
+
+    /**
      * @param card
      * @return
      */
     public static int getCardDrawable(String card){
         if(isDraw4(card))   return R.drawable.uno_black;
-        String colorCode = card.substring(0, 1);
+        String colorCode = getCardSymbol(card);
         if(colorCode.equals("Y"))   return R.drawable.uno_yellow;
         else if(colorCode.equals("R"))   return R.drawable.uno_red;
         else if(colorCode.equals("G"))   return R.drawable.uno_green;
@@ -46,13 +58,12 @@ public class Utils {
     }
 
     /**
-     *
      * @param card
      * @return
      */
     public static String getCardColor(String card){
         if(isDraw4(card))   return COLOR_BLACK;
-        String colorCode = card.substring(0, 1);
+        String colorCode = getCardSymbol(card);
         if(colorCode.equals("Y"))   return COLOR_YELLOW;
         else if(colorCode.equals("R"))   return COLOR_RED;
         else if(colorCode.equals("G"))   return COLOR_GREEN;
@@ -60,18 +71,32 @@ public class Utils {
     }
 
     /**
-     *
      * @param card
      * @return
      */
     public static String getCardDisplay(String card){
         if(isDraw4(card)) return card;
         else if(isSkip(card))  return "Skip";
-        else return card.substring(1);
+        else return getCardNumber(card);
     }
 
     /**
-     *
+     * @param card
+     * @return
+     */
+    public static String getCardNumber(String card){
+        return card.substring(1);
+    }
+
+    /**
+     * @param card
+     * @return
+     */
+    public static String getCardSymbol(String card){
+        return card.substring(0, 1);
+    }
+
+    /**
      * @param card
      * @return
      */
@@ -80,7 +105,6 @@ public class Utils {
     }
 
     /**
-     *
      * @param card
      * @return
      */
@@ -89,7 +113,6 @@ public class Utils {
     }
 
     /**
-     *
      * @param view
      * @param image
      * @param uid

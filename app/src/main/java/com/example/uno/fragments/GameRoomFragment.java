@@ -14,6 +14,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,6 +64,8 @@ public class GameRoomFragment extends Fragment {
 
         Firestore getDb();
 
+        void alert(String msg);
+
     }
 
     @Override
@@ -79,7 +82,11 @@ public class GameRoomFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        stopGame();
+    }
 
+    public void stopGame(){
+        dbref.update("active", false);
     }
 
     @Override
@@ -129,10 +136,16 @@ public class GameRoomFragment extends Fragment {
                     return;
                 }
                 game = value.toObject(Game.class);
+                if(game == null) return;
                 game.setId(value.getId());
 
                 if(!game.isActive()){
+                    if(game.getWinner() == null)
+                        am.alert("Game ended abruptly! No winners!");
                     listener.remove();
+                    dbref.delete();
+                    user.setGame(null);
+                    navController.popBackStack();
                 }
 
                 if(game.isPlayer1Turn()){

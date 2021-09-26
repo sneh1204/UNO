@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -62,6 +63,17 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.UViewHolder> {
             @Override
             public void onClick(View view) {
                 // playing their turn, write game logic
+                if(!game.isMyTurn(user)){
+                    Toast.makeText(parent.getContext(), "It's not your turn!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(!Utils.canPlay(game.getTopCard(), card)){
+                    Toast.makeText(parent.getContext(), "Cannot play that card!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+
             }
         });
 

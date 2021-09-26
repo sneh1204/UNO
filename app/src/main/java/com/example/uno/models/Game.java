@@ -2,6 +2,7 @@ package com.example.uno.models;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Game implements Serializable {
 
@@ -15,6 +16,8 @@ public class Game implements Serializable {
 
     User player1;
 
+    Date created_at = new Date();
+
     User player2;
 
     String winner = null;
@@ -24,6 +27,18 @@ public class Game implements Serializable {
     String playerTurn = "p1", center = null;
 
     public Game() {
+    }
+
+    public Date getCreated_at() {
+        return created_at;
+    }
+
+    public boolean isMyTurn(User user){
+        return user.getId().equals(this.getUserTurn().getId());
+    }
+
+    public void setCreated_at(Date created_at) {
+        this.created_at = created_at;
     }
 
     public String getId() {
@@ -127,7 +142,11 @@ public class Game implements Serializable {
     }
 
     public String getTopCard(){
-        return this.deck.get(0);
+        return (this.deck.size() >= 1) ? this.deck.get(0) : null;
+    }
+
+    public String getDrawCard(){
+        return (this.deck.size() >= 2) ? this.deck.get(1) : null;
     }
 
     public boolean isPlayer1(User user){
