@@ -1,8 +1,11 @@
 package com.example.uno.fragments;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -17,6 +20,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.os.CountDownTimer;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -68,6 +74,8 @@ public class GameRoomFragment extends Fragment {
 
         void alert(String msg);
 
+        void actionBar(boolean show);
+
     }
 
     @Override
@@ -85,6 +93,13 @@ public class GameRoomFragment extends Fragment {
     public void onStop() {
         super.onStop();
         stopGame();
+        am.actionBar(false);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     public void stopGame(){
@@ -94,6 +109,7 @@ public class GameRoomFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        am.actionBar(true);
         if(game == null)    navController.popBackStack();
     }
 
@@ -207,4 +223,29 @@ public class GameRoomFragment extends Fragment {
 
         return view;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case 16908332:
+                // add alert dialog
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Leave Game?");
+                builder.setMessage("Do you want to leave this Game?");
+                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        navController.popBackStack();
+
+                    }
+                });
+                builder.setNegativeButton("No", null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 }
