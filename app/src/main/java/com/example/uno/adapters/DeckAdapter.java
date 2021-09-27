@@ -1,6 +1,7 @@
 package com.example.uno.adapters;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +17,7 @@ import com.example.uno.databinding.CardLayoutBinding;
 import com.example.uno.helpers.Utils;
 import com.example.uno.models.Game;
 import com.example.uno.models.User;
+import com.google.firebase.firestore.DocumentReference;
 
 import java.util.ArrayList;
 
@@ -29,7 +31,11 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.UViewHolder> {
 
     Firestore db;
 
+    DocumentReference dbref;
+
     User user;
+
+    Game game;
 
     ViewGroup parent;
 
@@ -52,7 +58,11 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.UViewHolder> {
 
         user = am.getUser();
         db = am.getDb();
-        Game game = user.getGame();
+        game = user.getGame();
+
+        if(game == null)    return;
+
+        dbref = db.firestore.collection(Firestore.DB_GAME).document(game.getId());
 
         binding.textView4.setText(Utils.getCardDisplay(card));
         binding.textView4.setTextColor(Color.parseColor(Utils.getCardColor(card)));
@@ -73,6 +83,19 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.UViewHolder> {
                     return;
                 }
 
+                deck.remove(card);
+                game.getDiscard().add(card);
+
+                if(!Utils.isSpecialCard(card))  game.switchTurn();
+
+                if(Utils.isDraw4(card)) game.addCardsToUser(game.getOpponentUser(user), game.getDeckCards(4));
+
+                if(deck.size() <= 0){
+                    game.setActive(false);
+                    game.addWinnerUser(user);
+                }
+
+                dbref.set(game);
 
             }
         });

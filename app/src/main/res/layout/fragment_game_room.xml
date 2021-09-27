@@ -44,8 +44,8 @@
     <include
         android:id="@+id/include"
         layout="@layout/card_layout"
-        android:layout_width="157dp"
-        android:layout_height="262dp"
+        android:layout_width="177dp"
+        android:layout_height="260dp"
         android:layout_marginStart="32dp"
         android:layout_marginTop="100dp"
         android:layout_marginEnd="32dp"

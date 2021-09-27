@@ -96,7 +96,12 @@ public class RequestsAdapter extends RecyclerView.Adapter<RequestsAdapter.UViewH
                                 player2hand.add(deck.remove(j));
                         }
 
-                        Game game = new Game(request.getRequester(), user, deck, player1hand, player2hand);
+                        while (Utils.isSpecialCard(deck.get(0))) // special cards shouldn't be the first top card
+                            Collections.shuffle(deck);
+
+                        ArrayList<String> discard = new ArrayList<>(Arrays.asList(deck.remove(0)));
+
+                        Game game = new Game(request.getRequester(), user, deck, player1hand, player2hand, discard);
 
                         db.firestore.collection(Firestore.DB_GAME).add(game).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                             @Override

@@ -3,6 +3,7 @@
     android:layout_width="85dp"
     android:layout_height="125dp"
     android:background="?android:attr/selectableItemBackground"
+    android:layout_marginRight="10dp"
     >
 
     <ImageView

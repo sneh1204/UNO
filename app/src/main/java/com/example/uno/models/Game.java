@@ -1,7 +1,10 @@
 package com.example.uno.models;
 
+import com.example.uno.helpers.Utils;
+
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 public class Game implements Serializable {
@@ -22,11 +25,28 @@ public class Game implements Serializable {
 
     String winner = null;
 
-    boolean dealing = true, active = true, draw4 = false, skip = false;
+    boolean active = true;
 
-    String playerTurn = "p1", center = null;
+    String playerTurn = "p1";
 
     public Game() {
+    }
+
+    public void switchTurn(){
+        if(playerTurn.equals("p1"))
+            this.playerTurn = "p2";
+        else
+            this.playerTurn = "p1";
+    }
+
+    public ArrayList<String> getUserHand(User user){
+        return isPlayer1(user) ? getPlayer1hand() : getPlayer2hand();
+    }
+
+    public boolean canPlay(User user){
+        for(String card : getUserHand(user))
+            if(Utils.canPlay(getTopCard(), card))   return true;
+        return false;
     }
 
     public Date getCreated_at() {
@@ -45,16 +65,53 @@ public class Game implements Serializable {
         return id;
     }
 
+    public boolean isWinner(User user){
+        return winner.equals("p1") == isPlayer1(user);
+    }
+
     public String getWinner() {
         return winner;
     }
 
-    public void setWinner(String winner) {
+    public void setWinner(String winner){
         this.winner = winner;
+    }
+
+    public ArrayList<String> getDeckCards(int card_count){
+        ArrayList<String> toAdd = new ArrayList<>();
+        if(deck.size() <= card_count){
+            String temp = removeTopCard();
+            deck = discard;
+            discard.clear();
+            discard = new ArrayList<>(Arrays.asList(temp));
+        }
+        for(int j = 0; j < card_count; j++){
+            toAdd.add(deck.remove(j));
+        }
+        return toAdd;
+    }
+
+    public void addWinnerUser(User user) {
+        if(isPlayer1(user)) setWinner("p1");
+        else setWinner("p2");
     }
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public User getOpponentUser(User user){
+        return isPlayer1(user) ? player2 : player1;
+    }
+
+    public void addCardsToUser(User user, ArrayList<String> cards){
+        if(isPlayer1(user)) {
+            cards.addAll(player1hand);
+            player1hand = cards;
+        } else {
+            cards.addAll(player2hand);
+            player2hand = cards;
+        }
     }
 
     public ArrayList<String> getDeck() {
@@ -97,28 +154,12 @@ public class Game implements Serializable {
         this.player2 = player2;
     }
 
-    public boolean isDealing() {
-        return dealing;
-    }
-
-    public void setDealing(boolean dealing) {
-        this.dealing = dealing;
-    }
-
     public boolean isActive() {
         return active;
     }
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public boolean isDraw4() {
-        return draw4;
-    }
-
-    public void setDraw4(boolean draw4) {
-        this.draw4 = draw4;
     }
 
     public ArrayList<String> getDiscard() {
@@ -129,32 +170,29 @@ public class Game implements Serializable {
         this.discard = discard;
     }
 
-    public boolean isSkip() {
-        return skip;
-    }
-
-    public Game(User player1, User player2, ArrayList<String> deck, ArrayList<String> player1hand, ArrayList<String> player2hand) {
+    public Game(User player1, User player2, ArrayList<String> deck, ArrayList<String> player1hand, ArrayList<String> player2hand, ArrayList<String> discard) {
         this.deck = deck;
         this.player1 = player1;
         this.player2 = player2;
         this.player1hand = player1hand;
         this.player2hand = player2hand;
+        this.discard = discard;
+    }
+
+    public String removeTopCard(){
+        return this.discard.remove(this.discard.size() - 1);
     }
 
     public String getTopCard(){
-        return (this.deck.size() >= 1) ? this.deck.get(0) : null;
+        return this.discard.get(this.discard.size() - 1);
     }
 
     public String getDrawCard(){
-        return (this.deck.size() >= 2) ? this.deck.get(1) : null;
+        return (this.deck.size() >= 1) ? this.deck.get(0) : null;
     }
 
     public boolean isPlayer1(User user){
         return user.getId().equals(this.player1.getId());
-    }
-
-    public void setSkip(boolean skip) {
-        this.skip = skip;
     }
 
     public String getPlayerTurn() {
@@ -174,14 +212,6 @@ public class Game implements Serializable {
         this.playerTurn = playerTurn;
     }
 
-    public String getCenter() {
-        return center;
-    }
-
-    public void setCenter(String center) {
-        this.center = center;
-    }
-
     @Override
     public String toString() {
         return "Game{" +
@@ -191,15 +221,11 @@ public class Game implements Serializable {
                 ", player1hand=" + player1hand +
                 ", player2hand=" + player2hand +
                 ", player1=" + player1 +
+                ", created_at=" + created_at +
                 ", player2=" + player2 +
                 ", winner='" + winner + '\'' +
-                ", dealing=" + dealing +
                 ", active=" + active +
-                ", draw4=" + draw4 +
-                ", skip=" + skip +
                 ", playerTurn='" + playerTurn + '\'' +
-                ", center='" + center + '\'' +
                 '}';
     }
-
 }

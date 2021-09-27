@@ -38,8 +38,8 @@ public class Utils {
      */
     public static boolean canPlay(String card, String playing){
         if(playing.equals(card))  return true;
-        else if(isDraw4(card))   return true;
-        else if(getCardColor(card).equals(getCardSymbol(playing)))   return true;
+        else if(isDraw4(playing) || isDraw4(card))   return true;
+        else if(getCardSymbol(card).equals(getCardSymbol(playing)))   return true;
         else if(getCardNumber(card).equals(getCardNumber(playing)))  return true;
         return false;
     }
@@ -78,6 +78,10 @@ public class Utils {
         if(isDraw4(card)) return card;
         else if(isSkip(card))  return "Skip";
         else return getCardNumber(card);
+    }
+
+    public static boolean isSpecialCard(String card){
+        return isDraw4(card) || isSkip(card);
     }
 
     /**

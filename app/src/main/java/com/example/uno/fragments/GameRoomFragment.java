@@ -36,6 +36,8 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class GameRoomFragment extends Fragment {
@@ -112,11 +114,6 @@ public class GameRoomFragment extends Fragment {
         LinearLayoutManager llm = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false);
         binding.deckView.setLayoutManager(llm);
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(binding.deckView.getContext(),
-                llm.getOrientation());
-        dividerItemDecoration.setDrawable(getResources().getDrawable(R.drawable.space_rect));
-        binding.deckView.addItemDecoration(dividerItemDecoration);
-
         oldcolor = binding.player1.getTextColors();
 
         binding.player1.setText(game.getPlayer1().getFirstname());
@@ -124,6 +121,29 @@ public class GameRoomFragment extends Fragment {
 
         Utils.setImage(view, binding.imageView4, game.getPlayer1().getId(), game.getPlayer2().getPhotoref());
         Utils.setImage(view, binding.imageView5, game.getPlayer2().getId(), game.getPlayer2().getPhotoref());
+
+        binding.button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(!game.isMyTurn(user)){
+                    Toast.makeText(getContext(), "It's not your turn!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(game.canPlay(user)){
+                    Toast.makeText(getContext(), "You cannot draw if you have a playable card in deck.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                game.addCardsToUser(user, new ArrayList<>(Arrays.asList(game.getDeck().remove(0))));
+
+                if(!game.canPlay(user))
+                    game.switchTurn();
+
+                dbref.set(game);
+            }
+        });
 
         listener = dbref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
@@ -138,14 +158,22 @@ public class GameRoomFragment extends Fragment {
                 game = value.toObject(Game.class);
                 if(game == null) return;
                 game.setId(value.getId());
+                user.setGame(game);
 
                 if(!game.isActive()){
                     if(game.getWinner() == null)
                         am.alert("Game ended abruptly! No winners!");
+                    else{
+                        if(game.isWinner(user))
+                            am.alert("You won the game!!!");
+                        else
+                            am.alert("You lose! Better luck next time!");
+                    }
                     listener.remove();
                     dbref.delete();
                     user.setGame(null);
                     navController.popBackStack();
+                    return;
                 }
 
                 if(game.isPlayer1Turn()){
@@ -165,15 +193,15 @@ public class GameRoomFragment extends Fragment {
                 }
 
                 binding.include.textView4.setTextColor(Color.parseColor(Utils.getCardColor(game.getTopCard())));
+                binding.include.textView4.setTextSize(70);
+                if(Utils.isSkip(game.getTopCard()))
+                    binding.include.textView4.setTextSize(50);
                 binding.include.textView4.setText(Utils.getCardDisplay(game.getTopCard()));
                 if(Utils.isSkip(game.getTopCard()))  binding.include.textView4.setTextSize(30);
                 binding.include.imageView6.setImageDrawable(ContextCompat.getDrawable(getActivity(), Utils.getCardDrawable(game.getTopCard())));
 
-                if(game.isPlayer1(user)){
-                    binding.deckView.setAdapter(new DeckAdapter(game.getPlayer1hand()));
-                }else{
-                    binding.deckView.setAdapter(new DeckAdapter(game.getPlayer2hand()));
-                }
+                binding.deckView.setAdapter(new DeckAdapter(game.getUserHand(user)));
+
             }
         });
 
