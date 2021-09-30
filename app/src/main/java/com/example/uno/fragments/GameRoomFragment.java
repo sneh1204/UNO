@@ -66,6 +66,8 @@ public class GameRoomFragment extends Fragment {
 
     ListenerRegistration listener;
 
+    DeckAdapter deckAdapter;
+
     public interface IGameRoom{
 
         User getUser();
@@ -161,6 +163,8 @@ public class GameRoomFragment extends Fragment {
             }
         });
 
+
+
         listener = dbref.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot value, @Nullable FirebaseFirestoreException error) {
@@ -216,7 +220,8 @@ public class GameRoomFragment extends Fragment {
                 if(Utils.isSkip(game.getTopCard()))  binding.include.textView4.setTextSize(30);
                 binding.include.imageView6.setImageDrawable(ContextCompat.getDrawable(getActivity(), Utils.getCardDrawable(game.getTopCard())));
 
-                binding.deckView.setAdapter(new DeckAdapter(game.getUserHand(user)));
+                deckAdapter = new DeckAdapter(game.getUserHand(user));
+                binding.deckView.setAdapter(deckAdapter);
 
             }
         });

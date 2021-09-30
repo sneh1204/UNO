@@ -49,20 +49,17 @@ public class DeckAdapter extends RecyclerView.Adapter<DeckAdapter.UViewHolder> {
         binding = CardLayoutBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         am = (IDeckAdapter) parent.getContext();
         this.parent = parent;
+        user = am.getUser();
+        db = am.getDb();
+        game = user.getGame();
+
+        dbref = db.firestore.collection(Firestore.DB_GAME).document(game.getId());
         return new UViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull UViewHolder holder, int position) {
         String card = deck.get(position);
-
-        user = am.getUser();
-        db = am.getDb();
-        game = user.getGame();
-
-        if(game == null)    return;
-
-        dbref = db.firestore.collection(Firestore.DB_GAME).document(game.getId());
 
         binding.textView4.setText(Utils.getCardDisplay(card));
         binding.textView4.setTextColor(Color.parseColor(Utils.getCardColor(card)));
